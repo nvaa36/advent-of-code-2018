@@ -1,23 +1,28 @@
-input_file = open("input.txt", "r")
-
-letter_freq = [0] * 256
-twos = 0
-threes = 0
-
 def get_id():
-    for line in input_file:
-        for letter in line:
-            letter_freq[ord(letter)] += 1
-        if 2 in letter_freq:
-            twos += 1
-        if 3 in letter_freq:
-            threes += 1
-        letter_freq = [0] * 256
+    input_file = open("input.txt", "r")
 
-print(twos * threes)
+    ids = []
+
+    for line in input_file:
+        line_len = len(line)
+
+        for old_id in ids:
+            num_same = 0
+            for i in range(line_len):
+                if old_id[i] == line[i]:
+                    num_same +=1
+            if num_same == line_len - 1:
+                return (old_id, line)
+
+        ids.append(line)
 
 def main():
-    print(get_id())
+    (l1, l2) = get_id()
+
+    for i in range(len(l1)):
+        if l1[i] == l2[i]:
+            print(l1[i], end='')
+
 
 if __name__== "__main__":
     main()
