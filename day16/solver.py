@@ -2,88 +2,37 @@ A = 1
 B = 2
 C = 3
 
+# 529
+
 # each check function returns the number of possible opcodes that would change
 # the registers accordingly
-def check_add(before, after, inst):
+def check_math(before, after, inst, op):
     fits = 0
-    #addi
-    if after[inst[C]] == before[inst[A]] + before[inst[B]]:
+    #i
+    if after[inst[C]] == eval(str(before[inst[A]]) + op + str(before[inst[B]])):
         fits += 1
-    #addr
-    if after[inst[C]] == before[inst[A]] + inst[B]:
+    #r
+    if after[inst[C]] == eval(str(before[inst[A]]) + op + str(inst[B])):
         fits += 1
     return fits
 
-def check_mul(before, after, inst):
+def check_log(before, after, inst, op):
     fits = 0
-    #muli
-    if after[inst[C]] == before[inst[A]] * before[inst[B]]:
+    #ri
+    if after[inst[C]] == eval(str(before[inst[A]]) + op + str(inst[B])):
         fits += 1
-    #mulr
-    if after[inst[C]] == before[inst[A]] * inst[B]:
+    #ir
+    if after[inst[C]] == eval(str(inst[A]) + op + str(before[inst[B]])):
         fits += 1
-    return fits
-
-def check_ban(before, after, inst):
-    fits = 0
-    #bani
-    if after[inst[C]] == before[inst[A]] & before[inst[B]]:
-        fits += 1
-    #banr
-    if after[inst[C]] == before[inst[A]] & inst[B]:
-        fits += 1
-    return fits
-
-def check_bor(before, after, inst):
-    fits = 0
-    #bori
-    if after[inst[C]] == before[inst[A]] | before[inst[B]]:
-        fits += 1
-    #borr
-    if after[inst[C]] == before[inst[A]] | inst[B]:
-        fits += 1
-    return fits
-
-def check_set(before, after, inst):
-    fits = 0
-    #seti
-    if after[inst[C]] == before[inst[A]]:
-        fits += 1
-    #setr
-    if after[inst[C]] == inst[A]:
-        fits += 1
-    return fits
-
-def check_gt(before, after, inst):
-    fits = 0
-    #gtri
-    if after[inst[C]] == (before[inst[A]] > inst[B]):
-        fits += 1
-    #gtir
-    if after[inst[C]] == (inst[A] > before[inst[B]]):
-        fits += 1
-    #gtrr
-    if after[inst[C]] == (before[inst[A]] > before[inst[B]]):
-        fits += 1
-    return fits
-
-def check_eq(before, after, inst):
-    fits = 0
-    #eqri
-    if after[inst[C]] == (before[inst[A]] == inst[B]):
-        fits += 1
-    #eqir
-    if after[inst[C]] == (inst[A] == before[inst[B]]):
-        fits += 1
-    #eqrr
-    if after[inst[C]] == (before[inst[A]] == before[inst[B]]):
+    #rr
+    if after[inst[C]] == eval(str(before[inst[A]]) + op + str(before[inst[B]])):
         fits += 1
     return fits
 
 # returns True if the sample can be 3 or more opcodes
 def process_sample(sample_lines):
-    checks = [check_add, check_mul, check_ban, check_bor, check_set, check_gt,
-              check_eq]
+    math_checks = {'add' : '+', 'mul' : '*', 'ban' : '&', 'bor': '|'}
+    log_checks = {'gt' : '>', 'eq' : '=='}
     before = sample_lines[0].strip()
     before = eval(before[before.index(':') + 2:])
     after = sample_lines[2].strip()
@@ -93,8 +42,11 @@ def process_sample(sample_lines):
     
     num_ops = 0
 
-    for check in checks:
-        num_ops += check(before, after, inst)
+    for op_name, op in math_checks.items():
+        num_ops += check_math(before, after, inst, op)
+
+    for op_name, op in log_checks.items():
+        num_ops += check_log(before, after, inst, op)
 
     if num_ops >= 3:
         return True
